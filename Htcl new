@@ -1,0 +1,124 @@
+export default function MatkaTrendAnalyzer() { const sampleData = 88 49 77 22 61 50 38 94 83 55 72 66 11 99 27 33;
+
+const analyzeNumbers = (input) => { const nums = input .split(/\s+/) .map((n) => n.trim()) .filter((n) => n.length === 2);
+
+const frequency = {};
+
+nums.forEach((n) => {
+  frequency[n] = (frequency[n] || 0) + 1;
+});
+
+const sorted = Object.entries(frequency).sort((a, b) => b[1] - a[1]);
+
+const hot = sorted.slice(0, 5);
+const cold = sorted.slice(-5);
+
+const last = nums[nums.length - 1];
+
+const suggestions = [];
+
+if (last) {
+  const reverse = last.split("").reverse().join("");
+  suggestions.push(reverse);
+
+  const plusOne = ((parseInt(last) + 11) % 100)
+    .toString()
+    .padStart(2, "0");
+  suggestions.push(plusOne);
+}
+
+hot.forEach((h) => {
+  if (!suggestions.includes(h[0])) {
+    suggestions.push(h[0]);
+  }
+});
+
+return {
+  hot,
+  cold,
+  suggestions: suggestions.slice(0, 6),
+};
+
+};
+
+const result = analyzeNumbers(sampleData);
+
+return ( <div className="min-h-screen bg-neutral-100 p-6"> <div className="max-w-4xl mx-auto space-y-6"> <div className="bg-white rounded-3xl shadow-lg p-6"> <h1 className="text-3xl font-bold mb-2">Matka Trend Analyzer</h1> <p className="text-gray-600"> Historical number trend analysis tool for educational and pattern-study purposes. </p> </div>
+
+<div className="bg-white rounded-3xl shadow-lg p-6">
+      <h2 className="text-xl font-semibold mb-4">Sample Historical Data</h2>
+      <div className="bg-neutral-100 rounded-2xl p-4 font-mono text-lg break-words">
+        {sampleData}
+      </div>
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="bg-white rounded-3xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Most Repeated (Hot)</h2>
+        <div className="space-y-3">
+          {result.hot.map(([num, count]) => (
+            <div
+              key={num}
+              className="flex justify-between bg-red-50 rounded-2xl p-3"
+            >
+              <span className="font-bold text-2xl">{num}</span>
+              <span className="text-gray-600">{count} times</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-3xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Least Repeated (Cold)</h2>
+        <div className="space-y-3">
+          {result.cold.map(([num, count]) => (
+            <div
+              key={num}
+              className="flex justify-between bg-blue-50 rounded-2xl p-3"
+            >
+              <span className="font-bold text-2xl">{num}</span>
+              <span className="text-gray-600">{count} times</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white rounded-3xl shadow-lg p-6">
+      <h2 className="text-xl font-semibold mb-4">4 Number Box Pattern</h2>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {result.suggestions.slice(0,4).map((s, idx) => (
+          <div
+            key={idx}
+            className="border-4 border-red-500 rounded-3xl p-8 text-center bg-yellow-50 shadow-md"
+          >
+            <div className="text-5xl font-extrabold text-red-600 tracking-widest">
+              {s}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-neutral-100 rounded-2xl p-4">
+        <h3 className="font-semibold mb-3">Extra Pattern Suggestions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {result.suggestions.map((s, idx) => (
+            <div
+              key={idx}
+              className="bg-green-50 rounded-2xl p-4 text-center"
+            >
+              <div className="text-2xl font-bold text-green-700">{s}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="mt-6 text-sm text-gray-500">
+        Note: This tool only analyzes historical trends and repeated patterns. Random outcomes cannot be guaranteed or accurately predicted.
+      </p>
+    </div>
+  </div>
+</div>
+
+); }
