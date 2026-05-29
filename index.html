@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sequence Prediction Tool</title>
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+body{
+  font-family:Arial,sans-serif;
+  background:#0f172a;
+  color:white;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+.container{
+  width:100%;
+  max-width:500px;
+  background:#111827;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+.title{
+  text-align:center;
+  margin-bottom:20px;
+}
+.title h1{
+  color:#facc15;
+  font-size:28px;
+}
+.title p{
+  color:#9ca3af;
+  margin-top:6px;
+}
+.inputs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:20px;
+}
+input{
+  height:60px;
+  border:none;
+  border-radius:12px;
+  text-align:center;
+  font-size:22px;
+  background:#1f2937;
+  color:#facc15;
+}
+button{
+  width:100%;
+  margin-top:20px;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:#facc15;
+  color:black;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.results{
+  margin-top:25px;
+}
+.result-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.card{
+  background:#1e293b;
+  border-radius:14px;
+  padding:15px;
+  text-align:center;
+  animation:pulse 2s infinite;
+}
+.card h2{
+  font-size:28px;
+  color:#facc15;
+}
+.badge{
+  margin-top:8px;
+  font-size:12px;
+}
+.percent{
+  margin-top:5px;
+  color:#22c55e;
+}
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+  100%{transform:scale(1)}
+}
+.footer{
+  text-align:center;
+  margin-top:20px;
+  color:#6b7280;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">
+    <h1>🎯 Sequence Predictor</h1>
+    <p>Enter 2 to 4 previous numbers</p>
+  </div>  <div class="inputs">
+    <input type="number" id="n1" placeholder="00">
+    <input type="number" id="n2" placeholder="00">
+    <input type="number" id="n3" placeholder="00">
+    <input type="number" id="n4" placeholder="00">
+  </div><button onclick="predictNumbers()">SEARCH</button>
+
+  <div class="results" id="results"></div>  <div class="footer">
+    Smart historical sequence matching system
+  </div>
+</div><script>
+const weeklyData = [
+[12,45,77,88,31,64,20],
+[12,45,77,31,64,88,20],
+[45,77,88,64,20,31,90],
+[10,22,45,78,12,67,89],
+[22,45,78,12,90,33,44],
+[45,78,12,67,89,11,22],
+[77,88,31,64,20,55,99],
+[31,64,20,88,77,66,44],
+[88,31,64,20,77,33,55],
+[15,33,66,99,44,22,11],
+[15,33,66,44,99,22,77],
+[66,99,44,22,11,88,55]
+];
+
+function predictNumbers(){
+
+  const nums = [
+    document.getElementById('n1').value,
+    document.getElementById('n2').value,
+    document.getElementById('n3').value,
+    document.getElementById('n4').value
+  ]
+  .filter(v => v !== '')
+  .map(v => parseInt(v));
+
+  const results = document.getElementById('results');
+
+  if(nums.length < 2){
+    results.innerHTML = '<p style="text-align:center;color:#f87171">Enter minimum 2 numbers</p>';
+    return;
+  }
+
+  let matches = {};
+  let total = 0;
+
+  weeklyData.forEach(row => {
+
+    for(let i=0;i<row.length-nums.length;i++){
+
+      let ok = true;
+
+      for(let j=0;j<nums.length;j++){
+        if(row[i+j] !== nums[j]){
+          ok = false;
+          break;
+        }
+      }
+
+      if(ok){
+        const nextNum = row[i+nums.length];
+
+        if(nextNum !== undefined){
+          matches[nextNum] = (matches[nextNum] || 0) + 1;
+          total++;
+        }
+      }
+    }
+  });
+
+  const sorted = Object.entries(matches)
+  .sort((a,b)=>b[1]-a[1]);
+
+  if(sorted.length === 0){
+    results.innerHTML = '<p style="text-align:center;color:#f87171">No matching pattern found</p>';
+    return;
+  }
+
+  let html = '<div class="result-grid">';
+
+  sorted.slice(0,9).forEach((item,index)=>{
+
+    const num = item[0];
+    const count = item[1];
+    const percent = ((count/total)*100).toFixed(1);
+
+    let badge = '⚡ POSSIBLE';
+
+    if(index === 0){
+      badge = '👑 HOT';
+    }else if(percent >= 15){
+      badge = '🔥 STRONG';
+    }
+
+    html += `
+      <div class="card">
+        <h2>${num}</h2>
+        <div class="badge">${badge}</div>
+        <div class="percent">${percent}%</div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  results.innerHTML = html;
+}
+</script></body>
+</html>
