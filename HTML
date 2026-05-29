@@ -1,0 +1,98 @@
+<script>
+function doSearch() {
+  const nums = [
+    document.getElementById('n1').value,
+    document.getElementById('n2').value,
+    document.getElementById('n3').value,
+    document.getElementById('n4').value
+  ]
+  .filter(v => v !== "")
+  .map(v => parseInt(v));
+
+  const resultArea = document.getElementById('resultArea');
+
+  if (nums.length < 2) {
+    resultArea.innerHTML = `
+      <div class="result-card no-match">
+        <div class="no-match-icon">⚠️</div>
+        <div class="no-match-text">Minimum 2 numbers daalo</div>
+      </div>
+    `;
+    return;
+  }
+
+  let matches = {};
+
+  weeklyData.forEach(row => {
+
+    for (let i = 0; i < row.length - nums.length; i++) {
+
+      let matched = true;
+
+      for (let j = 0; j < nums.length; j++) {
+        if (row[i + j] !== nums[j]) {
+          matched = false;
+          break;
+        }
+      }
+
+      if (matched) {
+        const nextNum = row[i + nums.length];
+
+        if (nextNum !== undefined) {
+          matches[nextNum] = (matches[nextNum] || 0) + 1;
+        }
+      }
+    }
+  });
+
+  const sortedMatches = Object.entries(matches)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (sortedMatches.length === 0) {
+    resultArea.innerHTML = `
+      <div class="result-card no-match">
+        <div class="no-match-icon">❌</div>
+        <div class="no-match-text">Koi match nahi mila</div>
+        <div class="no-match-sub">Dusra sequence try karo</div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="result-card">
+      <div class="match-type">MULTIPLE POSSIBLE RESULTS</div>
+      <div class="result-label">
+        Top ${sortedMatches.length} sequence numbers:
+      </div>
+      <div class="result-nums">
+  `;
+
+  sortedMatches.slice(0, 15).forEach(item => {
+
+    const num = item[0];
+    const count = item[1];
+
+    html += `
+      <div style="text-align:center">
+        <div class="result-num">${num}</div>
+        <div style="
+          color:#aaa;
+          font-size:11px;
+          margin-top:4px;
+        ">
+          ${count}x
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  resultArea.innerHTML = html;
+}
+</script>
